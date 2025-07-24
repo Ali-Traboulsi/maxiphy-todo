@@ -15,29 +15,24 @@ datasource db {
   directUrl = env("SUPABASE_DIRECT_URL")
 }
 
-model Account {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("accounts")
-}
-
 model User {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   firstName String
   lastName  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  email     String    @unique
+  password  String
+  isActive  Boolean   @default(true)
+  isAdmin   Boolean   @default(false)
+  avatarUrl String?   @default("https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y")
+  bio       String?   @default("")
+  birthday  DateTime?
+  lastLogin DateTime? @default(now())
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 
-  todos    Todo[]
-  accounts Account[]
+  todos Todo[]
 
+  @@index([firstName, lastName])
   @@map("users")
 }
 
