@@ -35,7 +35,6 @@ export interface CreateTodoRequest {
 export interface UpdateTodoRequest {
   description?: string;
   priority?: Priority;
-  date?: string;
   completed?: boolean;
   pinned?: boolean;
 }
@@ -105,7 +104,7 @@ class TodoService {
   }
 
   async updateTodo(id: string, data: UpdateTodoRequest): Promise<Todo> {
-    const response = await axios.patch(`${this.baseURL}/${id}`, data, {
+    const response = await axios.put(`${this.baseURL}/${id}`, data, {
       headers: this.getAuthHeaders(),
     });
     return response.data;
@@ -118,12 +117,12 @@ class TodoService {
   }
 
   async togglePin(id: string): Promise<Todo> {
-    const response = await axios.patch(
+    const response = await axios.put(
       `${this.baseURL}/${id}/pin`,
       {},
       {
         headers: this.getAuthHeaders(),
-      }
+      },
     );
     return response.data;
   }

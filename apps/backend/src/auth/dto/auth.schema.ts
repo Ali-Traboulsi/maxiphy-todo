@@ -1,14 +1,14 @@
 import z from 'zod';
 
 export const authRegisterBodySchema = z.object({
-  email: z.email().min(5).max(255),
+  email: z.string().email().min(5).max(255),
   password: z.string().min(6).max(100),
   firstName: z.string().min(2).max(100),
   lastName: z.string().min(2).max(100),
 });
 
 export const authLoginBodySchema = z.object({
-  email: z.email().min(5).max(255),
+  email: z.string().email().min(5).max(255),
   password: z.string().min(6).max(100),
 });
 

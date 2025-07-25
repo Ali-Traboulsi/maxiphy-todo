@@ -1,28 +1,28 @@
 "use client";
 import { authService } from "@/app/lib/api/auth";
+import { todoService, Todo, UpdateTodoRequest } from "@/app/lib/api/todo";
+import { EditTodoModal } from "@/components/Todo/todo-edit-modal";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api";
 
-export interface Todo {
-  id: string;
-  name: string;
-  description: string;
-  completed: boolean;
-  priority: "LOW" | "MEDIUM" | "HIGH";
-  date: string;
-}
 export default function TodosPage() {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [adding, setAdding] = useState(false);
+  const [updating, setUpdating] = useState(false);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [total, setTotal] = useState(0);
+
+  // Edit modal state
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
+
   const router = useRouter();
 
   // Redirect if not authenticated and fetch todos with pagination
@@ -35,13 +35,9 @@ export default function TodosPage() {
       setLoading(true);
       setError("");
       try {
-        const token = authService.getToken();
-        const res = await axios.get(`${API_URL}/todos`, {
-          headers: { Authorization: `Bearer ${token}` },
-          params: { page, limit },
-        });
-        setTodos(res.data.todos || res.data); // support both { todos, total } and array
-        setTotal(res.data.total || 0);
+        const response = await todoService.getTodos({ page, limit });
+        setTodos(response.todos || []);
+        setTotal(response.pagination?.total || 0);
       } catch (err: any) {
         setError("Failed to fetch todos");
       } finally {
@@ -55,16 +51,25 @@ export default function TodosPage() {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
+
+    if (!authService.isAuthenticated()) {
+      setError("User not authenticated");
+      router.replace("/login");
+      return;
+    }
+
     setAdding(true);
     setError("");
+
     try {
       const token = authService.getToken();
 
       if (!token) {
-        setError("User not authenticated");
-        setAdding(false);
+        setError("Authentication token not found");
+        router.replace("/login");
         return;
       }
+
       const userProfile = await authService.getProfile(token);
       const res = await axios.post(
         `${API_URL}/todos`,
@@ -74,14 +79,20 @@ export default function TodosPage() {
           priority: "MEDIUM",
           completed: false,
           pinned: false,
-          userId: userProfile.id, // Optional userId if needed
-        }, // Default priority
-        { headers: { Authorization: `Bearer ${token}` } }
+          userId: userProfile.id,
+        },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       setTodos([res.data, ...todos]);
       setInput("");
     } catch (err: any) {
-      setError("Failed to add todo");
+      console.error("Add todo error:", err);
+      if (err.response?.status === 401) {
+        setError("Session expired. Please login again.");
+        router.replace("/login");
+      } else {
+        setError("Failed to add todo");
+      }
     } finally {
       setAdding(false);
     }
@@ -90,20 +101,51 @@ export default function TodosPage() {
   // Mark todo as completed
   const handleComplete = async (id: string) => {
     try {
-      const token = authService.getToken();
-      await axios.patch(
-        `${API_URL}/todos/${id}`,
-        { completed: true },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const updatedTodo = await todoService.updateTodo(id, { completed: true });
       setTodos(
         todos.map((todo) =>
-          todo.id === id ? { ...todo, completed: true } : todo
-        )
+          todo.id === id ? { ...todo, completed: true } : todo,
+        ),
       );
     } catch {
       setError("Failed to update todo");
     }
+  };
+
+  // Open edit modal
+  const handleEditClick = (todo: Todo) => {
+    setEditingTodo(todo);
+    setEditModalOpen(true);
+  };
+
+  // Handle edit save
+  const handleEditSave = async (id: string, data: UpdateTodoRequest) => {
+    setUpdating(true);
+    const token = authService.getToken();
+    try {
+      if (!authService.isAuthenticated()) {
+        setError("User not authenticated");
+        router.replace("/login");
+        return;
+      }
+
+      const updatedTodo = await todoService.updateTodo(id, data);
+      setTodos(
+        todos.map((todo) =>
+          todo.id === id ? { ...todo, ...updatedTodo } : todo,
+        ),
+      );
+    } catch (err: any) {
+      throw err; // Re-throw to let the modal handle the error
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  // Close edit modal
+  const handleEditClose = () => {
+    setEditModalOpen(false);
+    setEditingTodo(null);
   };
 
   return (
@@ -111,6 +153,7 @@ export default function TodosPage() {
       <h1 className="text-3xl font-bold mb-6 text-center text-purple-700">
         My TODOs
       </h1>
+
       <form className="flex gap-2 mb-6" onSubmit={handleAdd}>
         <input
           className="border px-2 py-1 rounded w-full focus:outline-none focus:ring-2 focus:ring-purple-400"
@@ -127,9 +170,11 @@ export default function TodosPage() {
           {adding ? "Adding..." : "Add"}
         </button>
       </form>
+
       {error && (
         <div className="text-red-600 text-sm text-center mb-4">{error}</div>
       )}
+
       {loading ? (
         <div className="text-center text-gray-500">Loading...</div>
       ) : (
@@ -161,18 +206,30 @@ export default function TodosPage() {
                       {todo.priority}
                     </span>
                   </span>
-                  {!todo.completed && (
-                    <button
-                      className="ml-4 bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition"
-                      onClick={() => handleComplete(todo.id)}
-                    >
-                      Complete
-                    </button>
-                  )}
+
+                  <div className="flex gap-2">
+                    {!todo.completed && (
+                      <>
+                        <button
+                          className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition text-sm"
+                          onClick={() => handleEditClick(todo)}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition text-sm"
+                          onClick={() => handleComplete(todo.id)}
+                        >
+                          Complete
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </li>
               ))
             )}
           </ul>
+
           {/* Pagination Controls */}
           <div className="flex justify-between items-center mt-6">
             <button
@@ -210,6 +267,15 @@ export default function TodosPage() {
           </div>
         </>
       )}
+
+      {/* Edit Modal */}
+      <EditTodoModal
+        isOpen={editModalOpen}
+        onClose={handleEditClose}
+        todo={editingTodo}
+        onSave={handleEditSave}
+        loading={updating}
+      />
     </main>
   );
 }

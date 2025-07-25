@@ -5,6 +5,7 @@ A comprehensive todo application built with modern technologies using Turborepo 
 ## 🚀 Tech Stack
 
 ### Backend
+
 - **NestJS** - Progressive Node.js framework
 - **Prisma** - Next-generation ORM
 - **PostgreSQL** - Powerful, open source object-relational database
@@ -14,6 +15,7 @@ A comprehensive todo application built with modern technologies using Turborepo 
 - **Swagger** - API documentation
 
 ### Frontend
+
 - **Next.js 14** - React framework with App Router
 - **TypeScript** - Static type checking
 - **Tailwind CSS v4** - Utility-first CSS framework
@@ -24,6 +26,7 @@ A comprehensive todo application built with modern technologies using Turborepo 
 - **Testing Library** - Simple and complete testing utilities
 
 ### Infrastructure
+
 - **Turborepo** - High-performance build system for monorepos
 - **Docker** - Containerization
 - **ESLint** - Code linting
@@ -57,18 +60,21 @@ todo-app-monorepo/
 ## 🛠️ Setup Instructions
 
 ### Prerequisites
+
 - Node.js (>= 18.0.0)
 - npm or yarn
 - PostgreSQL database
 - Git
 
 ### 1. Clone the Repository
+
 ```bash
 git clone <repository-url>
 cd todo-app-monorepo
 ```
 
 ### 2. Install Dependencies
+
 ```bash
 npm install
 ```
@@ -76,7 +82,9 @@ npm install
 ### 3. Environment Setup
 
 #### Backend Environment (.env)
+
 Create `apps/backend/.env`:
+
 ```env
 # Database
 DATABASE_URL="postgresql://username:password@localhost:5432/todo_app"
@@ -93,12 +101,15 @@ FRONTEND_URL="http://localhost:3000"
 ```
 
 #### Frontend Environment (.env.local)
+
 Create `apps/frontend/.env.local`:
+
 ```env
 NEXT_PUBLIC_API_URL="http://localhost:3001"
 ```
 
 ### 4. Database Setup
+
 ```bash
 # Generate Prisma client
 npm run db:generate
@@ -111,6 +122,7 @@ npm run db:migrate
 ```
 
 ### 5. Start Development Servers
+
 ```bash
 # Start both frontend and backend
 npm run dev
@@ -121,6 +133,7 @@ cd apps/frontend && npm run dev
 ```
 
 The application will be available at:
+
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:3001
 - API Documentation: http://localhost:3001/api/docs
@@ -130,7 +143,9 @@ The application will be available at:
 ### Authentication Endpoints
 
 #### POST /api/auth/register
+
 Register a new user
+
 ```json
 {
   "name": "John Doe",
@@ -140,7 +155,9 @@ Register a new user
 ```
 
 #### POST /api/auth/login
+
 Login user
+
 ```json
 {
   "email": "john@example.com",
@@ -149,13 +166,16 @@ Login user
 ```
 
 #### GET /api/auth/profile
+
 Get current user profile (requires authentication)
 
 ### Todo Endpoints
 
 #### GET /api/todos
+
 Get user's todos with pagination and filtering
 Query parameters:
+
 - `completed`: boolean (default: false)
 - `page`: number (default: 1)
 - `limit`: number (default: 10)
@@ -165,7 +185,9 @@ Query parameters:
 - `priority`: 'LOW' | 'MEDIUM' | 'HIGH'
 
 #### POST /api/todos
+
 Create a new todo
+
 ```json
 {
   "description": "Complete project documentation",
@@ -175,10 +197,13 @@ Create a new todo
 ```
 
 #### GET /api/todos/:id
+
 Get a specific todo
 
 #### PATCH /api/todos/:id
+
 Update a todo
+
 ```json
 {
   "description": "Updated description",
@@ -189,12 +214,15 @@ Update a todo
 ```
 
 #### DELETE /api/todos/:id
+
 Delete a todo
 
 #### PATCH /api/todos/:id/pin
+
 Toggle pin status of a todo
 
 #### GET /api/todos/stats
+
 Get user's todo statistics
 
 ## 🧩 Frontend Components
@@ -202,7 +230,9 @@ Get user's todo statistics
 ### Core Components
 
 #### `<TodoItem />` - Custom Todo Component
+
 Props:
+
 ```typescript
 interface TodoItemProps {
   todo: Todo;
@@ -213,7 +243,9 @@ interface TodoItemProps {
 ```
 
 #### `<Input />` - Reusable Input Component
+
 Props:
+
 ```typescript
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   className?: string;
@@ -221,11 +253,19 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 ```
 
 #### `<Button />` - Interactive Button Component
+
 Props:
+
 ```typescript
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
-  size?: 'default' | 'sm' | 'lg' | 'icon';
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
+  size?: "default" | "sm" | "lg" | "icon";
   asChild?: boolean;
 }
 ```
@@ -233,17 +273,21 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 ### Feature Components
 
 #### `<SearchBar />` - Debounced Search
+
 Features debounced search with 300ms delay for optimal performance.
 
 #### `<TodoFilters />` - Filtering and Sorting
+
 Provides priority filtering, sorting options, and pagination controls.
 
 #### `<TodoStats />` - Statistics Dashboard
+
 Displays comprehensive todo statistics and progress indicators.
 
 ## 🧪 Testing
 
 ### Backend Tests
+
 ```bash
 cd apps/backend
 
@@ -258,6 +302,7 @@ npm run test -- todos.service.spec.ts
 ```
 
 ### Frontend Tests
+
 ```bash
 cd apps/frontend
 
@@ -276,6 +321,7 @@ npm run test:coverage
 ### Using Docker
 
 #### Backend
+
 ```dockerfile
 # apps/backend/Dockerfile
 FROM node:18-alpine
@@ -290,6 +336,7 @@ CMD ["npm", "run", "start:prod"]
 ```
 
 #### Frontend
+
 ```dockerfile
 # apps/frontend/Dockerfile
 FROM node:18-alpine
@@ -305,6 +352,7 @@ CMD ["npm", "start"]
 ### Environment Variables for Production
 
 #### Backend
+
 ```env
 DATABASE_URL="postgresql://user:pass@db:5432/todo_app"
 JWT_SECRET="your-production-jwt-secret"
@@ -314,6 +362,7 @@ FRONTEND_URL="https://your-frontend-domain.com"
 ```
 
 #### Frontend
+
 ```env
 NEXT_PUBLIC_API_URL="https://your-api-domain.com"
 ```
@@ -321,6 +370,7 @@ NEXT_PUBLIC_API_URL="https://your-api-domain.com"
 ## ✨ Features Implemented
 
 ### Core Requirements ✅
+
 - [x] NestJS backend with Prisma ORM
 - [x] PostgreSQL database
 - [x] Next.js frontend with App Router
@@ -334,6 +384,7 @@ NEXT_PUBLIC_API_URL="https://your-api-domain.com"
 - [x] Custom components (TodoItem, Input, Button)
 
 ### Bonus Features ✅
+
 - [x] **TanStack Query** for data caching and management
 - [x] **Debounced search** bar (300ms delay)
 - [x] **Pin tasks** to top of list

@@ -83,6 +83,7 @@ export class AuthService {
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
     if (user && (await bcrypt.compare(password, user.password))) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
       return result;
     }
@@ -90,10 +91,12 @@ export class AuthService {
   }
 
   async getProfile(token: string): Promise<any> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const user = await this.jwtService.verifyAsync(token);
     if (!user) {
       throw new UnauthorizedException('Invalid token');
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     return this.usersService.findById(user.sub);
   }
 }

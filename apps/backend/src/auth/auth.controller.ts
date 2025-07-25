@@ -1,4 +1,11 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { Public } from 'src/decorators/setters/public.decorator';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto/auth.dto';
@@ -37,7 +44,14 @@ export class AuthController {
   }
 
   @Get('users/me')
-  async getProfile(@Body('token') token: string) {
+  async getProfile(@Request() req: { headers: { authorization?: string } }) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new UnauthorizedException('No token provided');
+    }
+
+    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return this.authService.getProfile(token);
   }
 }

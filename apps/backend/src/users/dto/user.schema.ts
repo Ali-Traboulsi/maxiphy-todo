@@ -3,13 +3,14 @@ import { ICreateUserBody, IUpdateUserBody, IUserResponse } from './user.types';
 
 export const UserCreateSchema: z.ZodSchema<ICreateUserBody> = z.object({
   email: z
+    .string()
     .email()
     .min(1, 'Email is required')
     .max(255, 'Email must be less than 255 characters'),
   firstName: z.string().nonempty('First name is required'),
   lastName: z.string().nonempty('Last name is required'),
   password: z.string().min(6, 'Password must be at least 6 characters long'),
-  avatarUrl: z.url().optional(),
+  avatarUrl: z.string().url().optional(),
   bio: z.string().max(500).optional(),
   birthday: z.date().optional(),
 });
@@ -18,7 +19,7 @@ export const UserUpdateSchema: z.ZodSchema<IUpdateUserBody> = z
   .object({
     firstName: z.string(),
     lastName: z.string(),
-    avatarUrl: z.url(),
+    avatarUrl: z.string().url(),
     bio: z.string().max(500),
     birthday: z.date(),
   })
@@ -29,7 +30,7 @@ export const UserResponseSchema: z.ZodSchema<IUserResponse> = z.object({
   email: z.string(),
   firstName: z.string(),
   lastName: z.string(),
-  avatarUrl: z.url(),
+  avatarUrl: z.string().url(),
   bio: z.string(),
   birthday: z.date(),
   createdAt: z.date(),

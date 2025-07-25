@@ -20,7 +20,7 @@ export default function LoginPage() {
       window.location.href = "/todos";
     } catch (err: any) {
       setError(
-        err?.response?.data?.message || err?.message || "Invalid credentials"
+        err?.response?.data?.message || err?.message || "Invalid credentials",
       );
     } finally {
       setLoading(false);
