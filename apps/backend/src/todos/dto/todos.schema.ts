@@ -1,4 +1,4 @@
-import { Priority } from 'generated/prisma';
+import { Priority } from '@prisma/client';
 import z from 'zod';
 
 export const CreateTodoBodySchema = z.object({
@@ -30,4 +30,15 @@ export const TodoResponseSchema = z.object({
   pinned: z.boolean().optional(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
+});
+
+export const TodosQueryParamsSchema = z.object({
+  page: z.preprocess(
+    (val) => (typeof val === 'string' ? parseInt(val, 10) : val),
+    z.number().int().min(1).default(1),
+  ),
+  limit: z.preprocess(
+    (val) => (typeof val === 'string' ? parseInt(val, 10) : val),
+    z.number().int().min(1).default(10),
+  ),
 });

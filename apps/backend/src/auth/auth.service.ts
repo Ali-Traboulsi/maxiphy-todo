@@ -88,4 +88,12 @@ export class AuthService {
     }
     return null;
   }
+
+  async getProfile(token: string): Promise<any> {
+    const user = await this.jwtService.verifyAsync(token);
+    if (!user) {
+      throw new UnauthorizedException('Invalid token');
+    }
+    return this.usersService.findById(user.sub);
+  }
 }

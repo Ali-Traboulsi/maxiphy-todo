@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -31,6 +30,7 @@ model User {
 
 model Todo {
   id          String   @id @default(cuid())
+  title       String   @default("")
   description String?
   priority    Priority @default(MEDIUM)
   date        DateTime @default(now())

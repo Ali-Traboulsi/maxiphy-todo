@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Priority } from 'generated/prisma';
+import { Priority } from '@prisma/client';
 import { CreateTodoBodyDto, UpdateTodoBodyDto } from './dto/todos.dto';
 import { TodosClient } from './todo.client';
 
@@ -7,8 +7,11 @@ import { TodosClient } from './todo.client';
 export class TodosService {
   constructor(private readonly todosClient: TodosClient) {}
 
-  async getTodos() {
-    return this.todosClient.getTodos();
+  async getTodos({
+    page = 1,
+    limit = 10,
+  }: { page?: number; limit?: number } = {}) {
+    return this.todosClient.getTodos({ page, limit });
   }
 
   async getTodoById(id: string) {

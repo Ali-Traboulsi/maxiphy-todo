@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { Public } from 'src/decorators/setters/public.decorator';
 import { AuthService } from './auth.service';
 import { LoginDto, RegisterDto } from './dto/auth.dto';
@@ -34,5 +34,10 @@ export class AuthController {
     @Body() { email, password }: { email: string; password: string },
   ): Promise<any> {
     return this.authService.validateUser(email, password);
+  }
+
+  @Get('users/me')
+  async getProfile(@Body('token') token: string) {
+    return this.authService.getProfile(token);
   }
 }
