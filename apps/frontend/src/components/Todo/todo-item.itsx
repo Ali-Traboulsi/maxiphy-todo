@@ -1,0 +1,17 @@
+import { Button } from "../ui/button";
+import { Checkbox } from "../ui/checkbox";
+
+export function TodoItem({ todo, onUpdate, onDelete }) {
+  return (
+    <div className="flex items-center gap-4 p-2 border rounded">
+      <Checkbox
+        checked={todo.completed}
+        onCheckedChange={(v) => onUpdate({ completed: !!v })}
+      />
+      <span className="flex-1">{todo.description}</span>
+      <Button variant="outline" size="sm" onClick={onDelete}>
+        Delete
+      </Button>
+    </div>
+  );
+}

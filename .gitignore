@@ -9,3 +9,16 @@ dist-ssr
 .cache
 server/dist
 public/dist
+
+
+.vscode
+.vscode-test
+.vscode-test-web
+.vscode-test-web-ssr
+.vscode-test-ssr
+.vscode-test-web-ssr
+.vscode-test-ssr
+.vscode-test-web-ssr
+.vscode-test-ssr        
+
+.idea
