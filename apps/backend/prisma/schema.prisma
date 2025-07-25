@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../generated/prisma"
@@ -19,45 +13,43 @@ model User {
   id        String    @id @default(cuid())
   firstName String
   lastName  String
-  email     String    @unique
-  password  String
-  isActive  Boolean   @default(true)
-  isAdmin   Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   avatarUrl String?   @default("https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y")
   bio       String?   @default("")
   birthday  DateTime?
+  email     String    @unique
+  isActive  Boolean   @default(true)
+  isAdmin   Boolean   @default(false)
   lastLogin DateTime? @default(now())
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-
-  todos Todo[]
+  password  String
+  todos     Todo[]
 
   @@index([firstName, lastName])
   @@map("users")
 }
 
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-}
-
 model Todo {
   id          String   @id @default(cuid())
-  description String
+  description String?
   priority    Priority @default(MEDIUM)
   date        DateTime @default(now())
   completed   Boolean  @default(false)
   pinned      Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, completed])
   @@index([userId, pinned])
   @@index([userId, priority])
   @@index([userId, date])
   @@map("todos")
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
 }

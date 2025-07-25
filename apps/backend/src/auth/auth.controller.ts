@@ -1,23 +1,38 @@
-import { Controller } from '@nestjs/common';
-import { ZodSerializerDto } from 'nestjs-zod';
+import { Body, Controller, Post } from '@nestjs/common';
+import { Public } from 'src/decorators/setters/public.decorator';
 import { AuthService } from './auth.service';
-import { AuthResponseDto, LoginDto, RegisterDto } from './dto/auth.dto';
+import { LoginDto, RegisterDto } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ZodSerializerDto(AuthResponseDto)
-  async register(registerDto: RegisterDto) {
+  /**
+   * Handles user registration.
+   * @param registerDto - The data transfer object containing registration details.
+   * @returns A promise that resolves to the result of the registration process.
+   */
+  @Public()
+  @Post('register')
+  async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 
-  @ZodSerializerDto(AuthResponseDto)
-  async login(loginDto: LoginDto) {
+  /**
+   * Handles user login.
+   * @param loginDto - The data transfer object containing login credentials.
+   * @returns A promise that resolves to the result of the login process.
+   */
+  @Public()
+  @Post('login')
+  async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
 
-  async validateUser(email: string, password: string): Promise<any> {
+  @Post('validate')
+  async validateUser(
+    @Body() { email, password }: { email: string; password: string },
+  ): Promise<any> {
     return this.authService.validateUser(email, password);
   }
 }

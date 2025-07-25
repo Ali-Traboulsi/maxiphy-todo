@@ -13,12 +13,12 @@ export class UsersController {
   }
 
   @Get(':id')
-  async findById(id: User['id']) {
+  async findById(@Param('id') id: User['id']) {
     return this.usersService.findById(id);
   }
 
   @Get('email/:email')
-  async findByEmail(email: User['email']) {
+  async findByEmail(@Param('email') email: User['email']) {
     return this.usersService.findByEmail(email);
   }
 
